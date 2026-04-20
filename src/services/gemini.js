@@ -5,12 +5,12 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const getGeminiResponse = async (userMessage, history = []) => {
   try {
-    if (!API_KEY) return "Error: API Key is missing in .env file.";
+    if (!API_KEY) return "Error: API Key is missing.";
 
-    // FORCED to gemini-pro to avoid 404 errors on Free Tier
+    // Using the EXACT model name from your list (#16)
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
-      systemInstruction: "You are MindEcho, a calm, supportive, and empathetic emotional assistant. Respond with warmth, clarity, and deep empathy. Keep responses concise but meaningful."
+      model: "gemini-flash-latest",
+      systemInstruction: "You are MindEcho, a supportive emotional companion. Respond with warmth and empathy."
     });
 
     const chat = model.startChat({
@@ -32,7 +32,7 @@ export const getGeminiResponse = async (userMessage, history = []) => {
 export const detectEmotion = async (text) => {
   try {
     if (!API_KEY) return "Neutral";
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
     const prompt = `Analyze emotion: [Sad, Anxious, Happy, Angry, Neutral]. Text: "${text}"`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
