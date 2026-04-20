@@ -82,7 +82,7 @@ export default function ChatWindow({ sessionId, isPrivate }) {
   return (
     <div className="chat-window">
       <div className="messages-container">
-        {[...messages].reverse().map((msg, index) => (
+        {messages.map((msg, index) => (
           <React.Fragment key={msg.id || index}>
             {msg.message && <MessageBubble type="user" content={msg.message} />}
             {msg.response && (
