@@ -35,22 +35,24 @@ export default function ChatWindow({ sessionId, isPrivate }) {
     setMessages(prev => [...prev, tempUserMsg]);
 
     try {
-      // 1. Detect emotion
+      console.log("Detecting emotion...");
       const emotion = await detectEmotion(text);
+      console.log("Emotion detected:", emotion);
       
-      // 2. Get AI response
       const history = messages.map(m => ({
         role: m.type === 'user' ? 'user' : 'model',
         parts: [{ text: m.message || m.response }],
       }));
       
+      console.log("Calling Gemini API...");
       const aiResponse = await getGeminiResponse(text, history);
+      console.log("Gemini response received:", aiResponse);
 
-      // 3. Save to Firestore if not private
       if (!isPrivate) {
+        console.log("Saving to Firestore...");
         await saveMessage(currentUser.uid, sessionId, text, aiResponse, emotion, isPrivate);
+        console.log("Save complete.");
       } else {
-        // If private, just add to local state
         setMessages(prev => [
           ...prev.filter(m => m.id !== 'temp-u'),
           { id: Date.now() + '-u', message: text, type: 'user' },
@@ -58,7 +60,8 @@ export default function ChatWindow({ sessionId, isPrivate }) {
         ]);
       }
     } catch (error) {
-      console.error("Send Message Error:", error);
+      console.error("Detailed Send Error:", error);
+      alert("System Error: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -79,7 +82,7 @@ export default function ChatWindow({ sessionId, isPrivate }) {
   return (
     <div className="chat-window">
       <div className="messages-container">
-        {messages.map((msg, index) => (
+        {[...messages].reverse().map((msg, index) => (
           <React.Fragment key={msg.id || index}>
             {msg.message && <MessageBubble type="user" content={msg.message} />}
             {msg.response && (
