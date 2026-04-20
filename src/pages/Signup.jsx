@@ -1,0 +1,77 @@
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+
+export default function Signup() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      return setError('Passwords do not match');
+    }
+    try {
+      setError('');
+      setLoading(true);
+      await signup(email, password);
+      navigate('/');
+    } catch (err) {
+      setError('Failed to create an account.');
+    }
+    setLoading(false);
+  }
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Create Account</h1>
+        <p className="auth-subtitle">Start your mindful conversation</p>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Email</label>
+            <input 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+              placeholder="your@email.com"
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+              placeholder="••••••••"
+            />
+          </div>
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input 
+              type="password" 
+              value={confirmPassword} 
+              onChange={(e) => setConfirmPassword(e.target.value)} 
+              required 
+              placeholder="••••••••"
+            />
+          </div>
+          <button disabled={loading} className="auth-button" type="submit">
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Already have an account? <Link to="/login">Login</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
