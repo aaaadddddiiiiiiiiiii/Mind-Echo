@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getMessages, saveMessage } from '../services/db';
-import { getGeminiResponse, detectEmotion } from '../services/gemini';
+import { getGroqResponse, detectEmotionGroq } from '../services/groq';
 import MessageBubble from './MessageBubble';
 import InputBox from './InputBox';
 
@@ -35,8 +35,8 @@ export default function ChatWindow({ sessionId, isPrivate }) {
     setMessages(prev => [...prev, tempUserMsg]);
 
     try {
-      console.log("Detecting emotion...");
-      const emotion = await detectEmotion(text);
+      console.log("Detecting emotion (Groq)...");
+      const emotion = await detectEmotionGroq(text);
       console.log("Emotion detected:", emotion);
       
       const history = messages.map(m => ({
@@ -44,8 +44,8 @@ export default function ChatWindow({ sessionId, isPrivate }) {
         parts: [{ text: m.message || m.response }],
       }));
       
-      console.log("Calling Gemini API...");
-      const aiResponse = await getGeminiResponse(text, history);
+      console.log("Calling Groq API...");
+      const aiResponse = await getGroqResponse(text, history);
       console.log("Gemini response received:", aiResponse);
 
       if (!isPrivate) {
