@@ -6,14 +6,18 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 export const getGeminiResponse = async (userMessage, history = []) => {
   try {
     if (!API_KEY) {
-      throw new Error("Gemini API Key is missing. Check your .env file.");
+      throw new Error("Gemini API Key is missing.");
     }
 
-    // Switched to gemini-pro which is the most compatible model for all API versions
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
-      systemInstruction: "You are MindEcho, a calm, supportive, and empathetic emotional assistant. Respond with warmth, clarity, and deep empathy. Your goal is to make the user feel heard and understood. Keep responses concise but meaningful. Avoid robotic or clinical language. If a user is in crisis, gently encourage them to seek professional help while remaining supportive."
-    });
+    // Using gemini-1.5-flash as it's the standard now
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const systemPrompt = `You are MindEcho, a calm, supportive, and empathetic emotional assistant. 
+    Respond with warmth, clarity, and deep empathy. 
+    Your goal is to make the user feel heard and understood. 
+    Keep responses concise but meaningful. 
+    Avoid robotic or clinical language. 
+    If a user is in crisis, gently encourage them to seek professional help while remaining supportive.`;
 
     const chat = model.startChat({
       history: history,
@@ -22,12 +26,15 @@ export const getGeminiResponse = async (userMessage, history = []) => {
       },
     });
 
-    const result = await chat.sendMessage(userMessage);
+    // We send the system prompt with the message to ensure it's always followed
+    const fullMessage = `System Instruction: ${systemPrompt}\n\nUser Message: ${userMessage}`;
+    
+    const result = await chat.sendMessage(fullMessage);
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error("Gemini API Error details:", error);
-    return "I'm here for you, but I'm having a little trouble connecting to my thoughts right now. Please try again in a moment.";
+    console.error("Gemini Error:", error);
+    return "I'm here for you, but I'm having a little trouble connecting right now. Please try again in a moment.";
   }
 };
 
@@ -35,8 +42,7 @@ export const detectEmotion = async (text) => {
   try {
     if (!API_KEY) return "Neutral";
 
-    // Switched to gemini-pro for reliability
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Analyze the emotional tone of this message and return ONLY one word from this list: [Sad, Anxious, Happy, Angry, Neutral].
     Message: "${text}"`;
     
