@@ -7,10 +7,9 @@ export const getGeminiResponse = async (userMessage, history = []) => {
   try {
     if (!API_KEY) return "Error: API Key is missing.";
 
-    // Using the EXACT model name from your list (#16)
     const model = genAI.getGenerativeModel({ 
       model: "gemini-flash-latest",
-      systemInstruction: "You are MindEcho, a supportive emotional companion. Respond with warmth and empathy."
+      systemInstruction: "You are MindEcho, a calm, supportive, and empathetic emotional assistant. Respond with warmth, clarity, and deep empathy. Your goal is to make the user feel heard and understood. Keep responses concise but meaningful. Avoid robotic or clinical language."
     });
 
     const chat = model.startChat({
@@ -33,11 +32,19 @@ export const detectEmotion = async (text) => {
   try {
     if (!API_KEY) return "Neutral";
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-    const prompt = `Analyze emotion: [Sad, Anxious, Happy, Angry, Neutral]. Text: "${text}"`;
+    const prompt = `Analyze the emotional tone of this message and return ONLY one word from this list: [Sad, Anxious, Happy, Angry, Neutral]. Do not use any formatting or punctuation.
+    Message: "${text}"`;
+    
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text().trim() || "Neutral";
+    // Clean up any formatting like **Anxious** or "Anxious"
+    const emotion = response.text().replace(/[*"']/g, '').trim();
+    
+    const validEmotions = ["Sad", "Anxious", "Happy", "Angry", "Neutral"];
+    const found = validEmotions.find(e => emotion.toLowerCase().includes(e.toLowerCase()));
+    return found || "Neutral";
   } catch (error) {
+    console.error("Emotion Detection Error:", error);
     return "Neutral";
   }
 };
