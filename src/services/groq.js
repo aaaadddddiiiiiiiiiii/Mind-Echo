@@ -25,7 +25,7 @@ export const getGroqResponse = async (userMessage, history = []) => {
       messages: [
         {
           role: "system",
-          content: "You are MindEcho, a calm, supportive, and empathetic emotional assistant. Respond with warmth, clarity, and deep empathy. If the user speaks in Hindi or Hinglish, respond in a mix of Hindi and English. Keep responses concise but meaningful. Never cut off mid-sentence."
+          content: "You are MindEcho, a calm, supportive, and empathetic emotional assistant. Respond with warmth, clarity, and deep empathy. IMPORTANT: ALWAYS respond in English only, regardless of the language the user uses. Keep responses concise but meaningful. Never cut off mid-sentence."
         },
         ...formattedHistory,
         {
@@ -33,7 +33,7 @@ export const getGroqResponse = async (userMessage, history = []) => {
           content: userMessage
         }
       ],
-      model: "llama-3.3-70b-versatile", // Powerful and fast
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 1024,
     });
@@ -59,7 +59,7 @@ export const detectEmotionGroq = async (text) => {
           content: text
         }
       ],
-      model: "llama-3.1-8b-instant", // Faster for small tasks
+      model: "llama-3.1-8b-instant",
     });
     return response.choices[0]?.message?.content?.trim() || "Neutral";
   } catch (error) {
