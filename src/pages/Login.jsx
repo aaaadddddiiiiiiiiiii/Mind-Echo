@@ -18,7 +18,8 @@ export default function Login() {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+      console.error(err);
+      setError(err.message || 'Failed to log in. Please check your credentials.');
     }
     setLoading(false);
   }
